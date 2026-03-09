@@ -1,12 +1,12 @@
 apiVersion: apiextensions.crossplane.io/v2
 kind: CompositeResourceDefinition
 metadata:
-  name: observes.stacks.hops.ops.com.ai
+  name: observestacks.hops.ops.com.ai
 spec:
-  group: stacks.hops.ops.com.ai
+  group: hops.ops.com.ai
   names:
-    kind: Observe
-    plural: observes
+    kind: ObserveStack
+    plural: observestacks
   scope: Namespaced
   versions:
   - name: v1alpha1
@@ -14,11 +14,11 @@ spec:
     served: true
     schema:
       openAPIV3Schema:
-        description: Observe deploys a complete observability stack with kube-prometheus-stack, Loki, Tempo, k8s-monitoring, and Grafana Operator as Helm releases.
+        description: ObserveStack deploys a complete observability stack with kube-prometheus-stack, Loki, Tempo, k8s-monitoring, and Grafana Operator as Helm releases.
         type: object
         properties:
           spec:
-            description: ObserveSpec defines the desired state.
+            description: ObserveStackSpec defines the desired state.
             type: object
             properties:
               clusterName:
@@ -159,7 +159,7 @@ spec:
             required:
             - clusterName
           status:
-            description: ObserveStatus defines the observed state.
+            description: ObserveStackStatus defines the observed state.
             type: object
             properties:
               ready:

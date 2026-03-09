@@ -1,10 +1,10 @@
 SHELL := /bin/bash
 
-PACKAGE ?= stack-observe
-XRD_DIR := apis/observes
+PACKAGE ?= observe-stack
+XRD_DIR := apis/observestacks
 COMPOSITION := $(XRD_DIR)/composition.yaml
 DEFINITION := $(XRD_DIR)/definition.yaml
-EXAMPLE_DEFAULT := examples/observes/standard.yaml
+EXAMPLE_DEFAULT := examples/observestacks/standard.yaml
 RENDER_TESTS := $(wildcard tests/test-*)
 E2E_TESTS := $(wildcard tests/e2etest-*)
 
@@ -18,11 +18,11 @@ build:
 # Examples list - mirrors GitHub Actions workflow
 # Format: example_path::observed_resources_path (observed_resources_path is optional)
 EXAMPLES := \
-    examples/observes/minimal.yaml:: \
-    examples/observes/standard.yaml:: \
-    examples/observes/standard.yaml::examples/test/mocks/observed-resources/standard/steps/1/ \
-    examples/observes/standard.yaml::examples/test/mocks/observed-resources/standard/steps/2/ \
-    examples/observes/standard.yaml::examples/test/mocks/observed-resources/standard/steps/3/
+    examples/observestacks/minimal.yaml:: \
+    examples/observestacks/standard.yaml:: \
+    examples/observestacks/standard.yaml::examples/test/mocks/observed-resources/standard/steps/1/ \
+    examples/observestacks/standard.yaml::examples/test/mocks/observed-resources/standard/steps/2/ \
+    examples/observestacks/standard.yaml::examples/test/mocks/observed-resources/standard/steps/3/
 
 # Render all examples (parallel execution, output shown per-job when complete)
 render\:all:
@@ -95,11 +95,11 @@ validate: ; @$(MAKE) 'validate:all'
 
 # Single example targets
 render\:%:
-	@example="examples/observes/$*.yaml"; \
+	@example="examples/observestacks/$*.yaml"; \
 	up composition render --xrd=$(DEFINITION) $(COMPOSITION) $$example
 
 validate\:%:
-	@example="examples/observes/$*.yaml"; \
+	@example="examples/observestacks/$*.yaml"; \
 	up composition render --xrd=$(DEFINITION) $(COMPOSITION) $$example \
 		--include-full-xr --quiet | \
 		crossplane beta validate $(XRD_DIR) --error-on-missing-schemas -

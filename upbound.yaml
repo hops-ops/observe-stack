@@ -1,7 +1,7 @@
 apiVersion: meta.dev.upbound.io/v2alpha1
 kind: Project
 metadata:
-  name: stack-observe
+  name: observe-stack
 spec:
   dependsOn:
   - apiVersion: pkg.crossplane.io/v1
@@ -21,10 +21,10 @@ spec:
   license: Apache-2.0
   maintainer: Patrick Lee Scott <pat@patscott.io>
   readme: |
-    # stack-observe
+    # observe-stack
 
     Deploys a complete observability stack with correct deletion ordering.
     Composes kube-prometheus-stack, Loki, Tempo, k8s-monitoring, and Grafana Operator
     as direct Helm releases.
-  repository: ghcr.io/hops-ops/stack-observe
-  source: github.com/hops-ops/stack-observe
+  repository: ghcr.io/hops-ops/observe-stack
+  source: github.com/hops-ops/observe-stack

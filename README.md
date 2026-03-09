@@ -1,4 +1,4 @@
-# stack-observe
+# observe-stack
 
 A single Crossplane resource that deploys a complete, production-wired observability stack: metrics, logs, traces, cost monitoring, and Grafana dashboards — all pre-integrated.
 
@@ -59,8 +59,8 @@ A single Crossplane resource that deploys a complete, production-wired observabi
 One field required. Everything else has sensible defaults.
 
 ```yaml
-apiVersion: stacks.hops.ops.com.ai/v1alpha1
-kind: Observe
+apiVersion: hops.ops.com.ai/v1alpha1
+kind: ObserveStack
 metadata:
   name: observe
   namespace: default
@@ -80,8 +80,8 @@ This deploys all 5 components into the `monitoring` namespace with:
 Add labels, tune Grafana, adjust component settings.
 
 ```yaml
-apiVersion: stacks.hops.ops.com.ai/v1alpha1
-kind: Observe
+apiVersion: hops.ops.com.ai/v1alpha1
+kind: ObserveStack
 metadata:
   name: observe
   namespace: default
@@ -123,8 +123,8 @@ spec:
 For Colima/kind/minikube — use `default` provider configs instead of cluster-named ones.
 
 ```yaml
-apiVersion: stacks.hops.ops.com.ai/v1alpha1
-kind: Observe
+apiVersion: hops.ops.com.ai/v1alpha1
+kind: ObserveStack
 metadata:
   name: observe
   namespace: default
