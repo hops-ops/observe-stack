@@ -27,13 +27,13 @@ jobs:
     with:
       examples: |
         [
-          { "example": "examples/observes/minimal.yaml" },
-          { "example": "examples/observes/standard.yaml" },
-          { "example": "examples/observes/standard.yaml", "observed_resources": "examples/test/mocks/observed-resources/standard/steps/1/" },
-          { "example": "examples/observes/standard.yaml", "observed_resources": "examples/test/mocks/observed-resources/standard/steps/2/" },
-          { "example": "examples/observes/standard.yaml", "observed_resources": "examples/test/mocks/observed-resources/standard/steps/3/" }
+          { "example": "examples/observestacks/minimal.yaml" },
+          { "example": "examples/observestacks/standard.yaml" },
+          { "example": "examples/observestacks/standard.yaml", "observed_resources": "examples/test/mocks/observed-resources/standard/steps/1/" },
+          { "example": "examples/observestacks/standard.yaml", "observed_resources": "examples/test/mocks/observed-resources/standard/steps/2/" },
+          { "example": "examples/observestacks/standard.yaml", "observed_resources": "examples/test/mocks/observed-resources/standard/steps/3/" }
         ]
-      api_path: apis/observes
+      api_path: apis/observestacks
       error_on_missing_schemas: true
 
   test:
