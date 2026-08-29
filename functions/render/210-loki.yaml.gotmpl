@@ -22,6 +22,7 @@ spec:
     chart:
       name: loki
       repository: https://grafana.github.io/helm-charts
+      # renovate: datasource=helm depName=loki registryUrl=https://grafana.github.io/helm-charts
       version: 6.53.0
     namespace: {{ $loki.namespace }}
     {{- if $loki.overrideAllValues }}
