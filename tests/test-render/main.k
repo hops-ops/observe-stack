@@ -230,25 +230,22 @@ _items = [
                     kind = "Release"
                     metadata.name = "k8s-monitoring"
                     spec.forProvider.values = {
-                        destinations = [
-                            {
-                                name = "prometheus"
+                        destinations = {
+                            prometheus = {
                                 type = "prometheus"
                                 url = "http://kube-prometheus-stack-prometheus.monitoring:9090/api/v1/write"
                             }
-                            {
-                                name = "loki"
+                            loki = {
                                 type = "loki"
                                 url = "http://loki-gateway.monitoring:80/loki/api/v1/push"
                             }
-                            {
-                                name = "tempo"
+                            tempo = {
                                 type = "otlp"
                                 url = "http://tempo.monitoring:4317"
                                 protocol = "grpc"
                             }
-                        ]
-                        clusterMetrics.opencost.opencost.prometheus.external.url = "http://kube-prometheus-stack-prometheus.monitoring:9090"
+                        }
+                        telemetryServices.opencost.opencost.prometheus.external.url = "http://kube-prometheus-stack-prometheus.monitoring:9090"
                     }
                 }
             ]
@@ -449,25 +446,22 @@ _items = [
                     kind = "Release"
                     metadata.name = "k8s-monitoring"
                     spec.forProvider.values = {
-                        destinations = [
-                            {
-                                name = "prometheus"
+                        destinations = {
+                            prometheus = {
                                 type = "prometheus"
                                 url = "http://kube-prometheus-stack-prometheus.monitoring:9090/api/v1/write"
                             }
-                            {
-                                name = "loki"
+                            loki = {
                                 type = "loki"
                                 url = "http://loki-gateway.monitoring:80/loki/api/v1/push"
                             }
-                            {
-                                name = "tempo"
+                            tempo = {
                                 type = "otlp"
                                 url = "http://tempo.monitoring:4317"
                                 protocol = "grpc"
                             }
-                        ]
-                        clusterMetrics.opencost.opencost.prometheus.external.url = "http://kube-prometheus-stack-prometheus.monitoring:9090"
+                        }
+                        telemetryServices.opencost.opencost.prometheus.external.url = "http://kube-prometheus-stack-prometheus.monitoring:9090"
                         nodeExporter.enabled = False
                     }
                 }

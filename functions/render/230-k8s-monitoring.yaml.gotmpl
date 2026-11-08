@@ -10,6 +10,12 @@
 # - destinations wired to Prometheus, Loki, and Tempo.
 # - cluster.name set to clusterName.
 #
+# Values use the k8s-monitoring v4 schema (destinations and collectors are maps,
+# OpenCost/kube-state-metrics/node-exporter are deployed via telemetryServices,
+# cost and host metrics are separate features, podLogs is podLogsViaLoki).
+# Collector names keep the v3 alloy-* names so the Alloy CRs keep their names
+# across the upgrade.
+#
 
 {{- $k8sMon := $state.k8sMonitoring }}
 {{- $kps := $state.kubePrometheusStack }}
@@ -31,44 +37,66 @@ spec:
       name: k8s-monitoring
       repository: https://grafana.github.io/helm-charts
       # renovate: datasource=helm depName=k8s-monitoring registryUrl=https://grafana.github.io/helm-charts
-      version: 3.8.13
+      version: 4.6.0
     namespace: {{ $k8sMon.namespace }}
     {{- if $k8sMon.overrideAllValues }}
     values:
       {{- toYaml $k8sMon.overrideAllValues | nindent 6 }}
     {{- else }}
     {{- /* Chart defaults + cross-component destinations */}}
+    {{- $prometheusUrl := printf "http://%s-prometheus.%s:9090" $kps.name $kps.namespace }}
     {{- $defaults := dict
       "cluster" (dict "name" $state.clusterName)
-      "destinations" (list
-        (dict "name" "prometheus" "type" "prometheus"
-          "url" (printf "http://%s-prometheus.%s:9090/api/v1/write" $kps.name $kps.namespace))
-        (dict "name" "loki" "type" "loki"
+      "destinations" (dict
+        "prometheus" (dict "type" "prometheus"
+          "url" (printf "%s/api/v1/write" $prometheusUrl))
+        "loki" (dict "type" "loki"
           "url" (printf "http://%s-gateway.%s:80/loki/api/v1/push" $loki.name $loki.namespace))
-        (dict "name" "tempo" "type" "otlp" "protocol" "grpc"
+        "tempo" (dict "type" "otlp" "protocol" "grpc"
           "url" (printf "http://%s.%s:4317" $tempo.name $tempo.namespace))
+      )
+      "collectors" (dict
+        "alloy-metrics" (dict "presets" (list "clustered" "statefulset"))
+        "alloy-logs" (dict "presets" (list "filesystem-log-reader" "daemonset"))
+        "alloy-singleton" (dict "presets" (list "singleton"))
+        "alloy-receiver" (dict "presets" (list "daemonset"))
       )
       "clusterMetrics" (dict
         "enabled" true
+        "collector" "alloy-metrics"
+      )
+      "hostMetrics" (dict
+        "enabled" true
+        "collector" "alloy-metrics"
+        "linuxHosts" (dict "enabled" true)
+        "windowsHosts" (dict "enabled" true)
+      )
+      "costMetrics" (dict
+        "enabled" true
+        "collector" "alloy-metrics"
+        "opencost" (dict "metricsSource" "prometheus")
+      )
+      "telemetryServices" (dict
+        "kube-state-metrics" (dict "deploy" true)
+        "node-exporter" (dict "deploy" true)
+        "windows-exporter" (dict "deploy" true)
         "opencost" (dict
-          "enabled" true
+          "deploy" true
           "metricsSource" "prometheus"
           "opencost" (dict
             "exporter" (dict "defaultClusterId" $state.clusterName)
-              "prometheus" (dict
-                "external" (dict
-                  "url" (printf "http://%s-prometheus.%s:9090" $kps.name $kps.namespace)
-                )
-              )
+            "prometheus" (dict
+              "external" (dict "url" $prometheusUrl)
             )
+          )
         )
       )
-      "alloy-metrics" (dict "enabled" true)
-      "clusterEvents" (dict "enabled" true)
-      "nodeLogs" (dict "enabled" true)
-      "podLogs" (dict "enabled" true)
+      "clusterEvents" (dict "enabled" true "collector" "alloy-singleton")
+      "nodeLogs" (dict "enabled" true "collector" "alloy-logs")
+      "podLogsViaLoki" (dict "enabled" true "collector" "alloy-logs")
       "applicationObservability" (dict
         "enabled" true
+        "collector" "alloy-receiver"
         "receivers" (dict
           "otlp" (dict
             "grpc" (dict "enabled" true "port" 4317)
@@ -76,11 +104,7 @@ spec:
           )
         )
       )
-      "prometheusOperatorObjects" (dict "enabled" true)
-      "alloy-logs" (dict "enabled" true)
-      "alloy-singleton" (dict "enabled" true)
-      "alloy-receiver" (dict "enabled" true)
-      "nodeExporter" (dict "enabled" false)
+      "prometheusOperatorObjects" (dict "enabled" true "collector" "alloy-metrics")
     }}
     {{- $mergedValues := mergeOverwrite $defaults ($k8sMon.values | default dict) }}
     values:
