@@ -141,9 +141,6 @@ _items = [
                         tempo.values = {
                             tempo.resources.requests = {cpu = "10m", memory = "64Mi"}
                         }
-                        k8sMonitoring.values = {
-                            nodeExporter.enabled = False
-                        }
                         grafanaOperator.values = {
                             resources.requests = {cpu = "10m", memory = "64Mi"}
                         }
