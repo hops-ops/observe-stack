@@ -14,5 +14,7 @@ spec:
         adminPassword: changeme
   k8sMonitoring:
     values:
-      nodeExporter:
-        enabled: false
+      # k8s-monitoring v4 defaults to tailing only new pod log lines; opt back in to
+      # reading existing log files from the start.
+      podLogsViaLoki:
+        onlyGatherNewLogLines: false

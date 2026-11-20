@@ -31,44 +31,38 @@ spec:
       name: k8s-monitoring
       repository: https://grafana.github.io/helm-charts
       # renovate: datasource=helm depName=k8s-monitoring registryUrl=https://grafana.github.io/helm-charts
-      version: 3.8.13
+      version: 4.6.1
     namespace: {{ $k8sMon.namespace }}
     {{- if $k8sMon.overrideAllValues }}
     values:
       {{- toYaml $k8sMon.overrideAllValues | nindent 6 }}
     {{- else }}
-    {{- /* Chart defaults + cross-component destinations */}}
+    {{- /* Chart defaults + cross-component destinations (k8s-monitoring v4 schema:
+         destinations and collectors are maps, telemetry services are deployed via
+         telemetryServices, and every feature is pinned to a named collector). */}}
     {{- $defaults := dict
       "cluster" (dict "name" $state.clusterName)
-      "destinations" (list
-        (dict "name" "prometheus" "type" "prometheus"
+      "destinations" (dict
+        "prometheus" (dict "type" "prometheus"
           "url" (printf "http://%s-prometheus.%s:9090/api/v1/write" $kps.name $kps.namespace))
-        (dict "name" "loki" "type" "loki"
+        "loki" (dict "type" "loki"
           "url" (printf "http://%s-gateway.%s:80/loki/api/v1/push" $loki.name $loki.namespace))
-        (dict "name" "tempo" "type" "otlp" "protocol" "grpc"
+        "tempo" (dict "type" "otlp" "protocol" "grpc"
           "url" (printf "http://%s.%s:4317" $tempo.name $tempo.namespace))
       )
-      "clusterMetrics" (dict
+      "clusterMetrics" (dict "enabled" true "collector" "alloy-metrics")
+      "hostMetrics" (dict
         "enabled" true
-        "opencost" (dict
-          "enabled" true
-          "metricsSource" "prometheus"
-          "opencost" (dict
-            "exporter" (dict "defaultClusterId" $state.clusterName)
-              "prometheus" (dict
-                "external" (dict
-                  "url" (printf "http://%s-prometheus.%s:9090" $kps.name $kps.namespace)
-                )
-              )
-            )
-        )
+        "collector" "alloy-metrics"
+        "linuxHosts" (dict "enabled" true)
       )
-      "alloy-metrics" (dict "enabled" true)
-      "clusterEvents" (dict "enabled" true)
-      "nodeLogs" (dict "enabled" true)
-      "podLogs" (dict "enabled" true)
+      "costMetrics" (dict "enabled" true "collector" "alloy-metrics")
+      "clusterEvents" (dict "enabled" true "collector" "alloy-singleton")
+      "nodeLogs" (dict "enabled" true "collector" "alloy-logs")
+      "podLogsViaLoki" (dict "enabled" true "collector" "alloy-logs")
       "applicationObservability" (dict
         "enabled" true
+        "collector" "alloy-receiver"
         "receivers" (dict
           "otlp" (dict
             "grpc" (dict "enabled" true "port" 4317)
@@ -76,11 +70,29 @@ spec:
           )
         )
       )
-      "prometheusOperatorObjects" (dict "enabled" true)
-      "alloy-logs" (dict "enabled" true)
-      "alloy-singleton" (dict "enabled" true)
-      "alloy-receiver" (dict "enabled" true)
-      "nodeExporter" (dict "enabled" false)
+      "prometheusOperatorObjects" (dict "enabled" true "collector" "alloy-metrics")
+      "telemetryServices" (dict
+        "kube-state-metrics" (dict "deploy" true)
+        "node-exporter" (dict "deploy" true)
+        "opencost" (dict
+          "deploy" true
+          "metricsSource" "prometheus"
+          "opencost" (dict
+            "exporter" (dict "defaultClusterId" $state.clusterName)
+            "prometheus" (dict
+              "external" (dict
+                "url" (printf "http://%s-prometheus.%s:9090" $kps.name $kps.namespace)
+              )
+            )
+          )
+        )
+      )
+      "collectors" (dict
+        "alloy-metrics" (dict "presets" (list "clustered" "statefulset"))
+        "alloy-singleton" (dict "presets" (list "singleton"))
+        "alloy-logs" (dict "presets" (list "filesystem-log-reader" "daemonset"))
+        "alloy-receiver" (dict "presets" (list "daemonset"))
+      )
     }}
     {{- $mergedValues := mergeOverwrite $defaults ($k8sMon.values | default dict) }}
     values:
