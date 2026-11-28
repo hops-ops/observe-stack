@@ -49,7 +49,7 @@ A single Crossplane resource that deploys a complete, production-wired observabi
 | kube-prometheus-stack | prometheus-community | 82.2.0 | Prometheus, AlertManager, Grafana |
 | loki | grafana | 6.53.0 | Log aggregation (SingleBinary default) |
 | tempo | grafana | 1.24.4 | Distributed tracing (OTLP, Jaeger, Zipkin) |
-| k8s-monitoring | grafana | 3.8.0 | Collection via Alloy + OpenCost |
+| k8s-monitoring | grafana | 4.6.1 | Collection via Alloy + OpenCost |
 | grafana-operator | grafana (OCI) | 5.21.4 | Grafana CRD management |
 
 ## The Journey
@@ -114,8 +114,10 @@ spec:
             region: us-east-1
   k8sMonitoring:
     values:
-      nodeExporter:
-        enabled: false
+      # k8s-monitoring v4 defaults to tailing only new pod log lines; opt back in to
+      # reading existing log files from the start.
+      podLogsViaLoki:
+        onlyGatherNewLogLines: false
 ```
 
 ### Stage 3: Local Development
